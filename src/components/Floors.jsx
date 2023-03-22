@@ -1,7 +1,7 @@
 import { useFrame } from '@react-three/fiber'
 import { RigidBody } from '@react-three/rapier'
 
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 
 THREE.ColorManagement.enabled = true
@@ -28,17 +28,17 @@ const wallMaterial = new THREE.MeshStandardMaterial({
   roughness: 0,
 })
 
-export default function Floors() {
+export default function Floors({ count, seed }) {
   return (
     <>
       <group position={[0, 0, 2.1]}>
-        {Array(103)
+        {Array(53)
           .fill(0)
           .map((_, index) => (
             <Floor key={index} positionZ={7.35 - 1.05 * index} />
           ))}
 
-        {Array(100)
+        {Array(50)
           .fill(0)
           .map((_, index) => (
             <Obstacle key={index} positionZ={4.2 - 1.05 * index} />
@@ -56,6 +56,7 @@ export function Floor({ positionZ = 7.35 }) {
         material={floor1Material}
         position={[0, -0.1, positionZ]}
         scale={[40, 0.1, 1]}
+        rotation={[0, 0, 0]}
         receiveShadow
         name='floor'
       />
@@ -66,7 +67,7 @@ export function Floor({ positionZ = 7.35 }) {
 export function Obstacle({ positionZ = 7.35 }) {
   const obstacleRef = useRef()
 
-  const reverse = Math.random() < 0.5 ? true : false
+  let reverse = Math.random() < 0.5 ? true : false
 
   const positionX = Math.random() * 20 - 10
   const speed = (Math.random() / 2 + 0.5) / 4
@@ -76,10 +77,10 @@ export function Obstacle({ positionZ = 7.35 }) {
     const { x, y, z } = obstacleRef.current.translation()
     if (reverse) {
       obstacleRef.current.setTranslation({ x: x - speed * delta * 14, y, z })
-      if (x < -15) obstacleRef.current.setTranslation({ x: 15, y, z })
+      if (x < -15) reverse = !reverse
     } else {
       obstacleRef.current.setTranslation({ x: x + speed * delta * 16, y, z })
-      if (x > 15) obstacleRef.current.setTranslation({ x: -15, y, z })
+      if (x > 15) reverse = !reverse
     }
   })
 
@@ -88,6 +89,7 @@ export function Obstacle({ positionZ = 7.35 }) {
       position={[positionX, 0.25, positionZ]}
       ref={obstacleRef}
       name='obstacle'
+      type='fixed'
     >
       <mesh
         geometry={boxGeometry}

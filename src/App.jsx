@@ -4,8 +4,12 @@ import { Perf } from 'r3f-perf'
 import Floors from './components/Floors'
 import Lights from './components/Lights'
 import Player from './components/Player'
+import useGame from './stores/useGame'
 
 function App() {
+  const seed = useGame((state) => state.seed)
+  // console.log(seed)
+
   return (
     <Canvas
       shadows
@@ -20,10 +24,10 @@ function App() {
       <Lights />
 
       <Physics>
-        <Floors />
-        <Player />
+        <Floors count={53} seed={seed} />
+        <Player seed={seed} />
       </Physics>
-      <Perf />
+      {/* <Perf /> */}
     </Canvas>
   )
 }

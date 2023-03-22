@@ -3,14 +3,20 @@ import { useFrame } from '@react-three/fiber'
 import { RigidBody } from '@react-three/rapier'
 import { useEffect, useRef, useState } from 'react'
 import { Vector3 } from 'three'
+import useGame from '../stores/useGame'
 
-export default function Player() {
+export default function Player({ seed }) {
   const body = useRef()
   const player = useRef()
   const [subscribeKeys, getKeys] = useKeyboardControls()
   const character = useGLTF('/players/mimikyu.glb')
   const [smoothedCameraPosition] = useState(() => new Vector3(20, 20, 20))
   const [smoothedCameraTarget] = useState(() => new Vector3())
+
+  const end = useGame((state) => state.end)
+  const start = useGame((state) => state.start)
+  const restart = useGame((state) => state.restart)
+  const phase = useGame((state) => state.phase)
 
   const reset = () => {
     body.current.setTranslation({ x: 0, y: 0.1, z: 7.35 })
@@ -19,8 +25,21 @@ export default function Player() {
   }
 
   useFrame((state, delta) => {
-    console.log(body.current.translation())
     const bodyZPos = new Vector3(0, 0, body.current.translation().z)
+
+    if (bodyZPos.z < -45) {
+      end()
+      body.current.setTranslation({ x: 0, y: 0.1, z: 7.35 })
+      body.current.setLinvel({ x: 0, y: 0, z: 0 })
+      body.current.setAngvel({ x: 0, y: 0, z: 0 })
+    }
+
+    if (body.current.translation().y < -4) {
+      restart()
+      body.current.setTranslation({ x: 0, y: 0.1, z: 7.35 })
+      body.current.setLinvel({ x: 0, y: 0, z: 0 })
+      body.current.setAngvel({ x: 0, y: 0, z: 0 })
+    }
 
     const cameraPosition = new Vector3()
     cameraPosition.copy(bodyZPos)
@@ -90,12 +109,14 @@ export default function Player() {
 
   useEffect(() => {
     body.current.setTranslation({ x: 0, y: 0, z: 7.35 })
+    console.log(phase)
 
     const unsubscribeForward = subscribeKeys(
       (state) => {
         return state.forward
       },
       (value) => {
+        if (phase === 'ended') return
         if (value === false) {
           goForward()
         }
@@ -107,6 +128,7 @@ export default function Player() {
         return state.backward
       },
       (value) => {
+        if (phase === 'ended') return
         if (value === false) {
           goBackWard()
         }
@@ -118,6 +140,7 @@ export default function Player() {
         return state.leftward
       },
       (value) => {
+        if (phase === 'ended') return
         if (value === false) {
           goLeftWard()
         }
@@ -129,19 +152,26 @@ export default function Player() {
         return state.rightward
       },
       (value) => {
+        if (phase === 'ended') return
         if (value === false) {
           goRightWard()
         }
       }
     )
 
+    const unsubscribeAny = subscribeKeys(() => {
+      if (phase === 'ended') return
+      start()
+    })
+
     return () => {
       unsubscribeForward()
       unsubscribeBackWard()
       unsubscribeLeftWard()
       unsubscribeRightWard()
+      unsubscribeAny()
     }
-  }, [])
+  }, [phase])
 
   return (
     <RigidBody
@@ -149,15 +179,12 @@ export default function Player() {
       onCollisionEnter={({ other }) => {
         if (other.colliderObject.name === 'obstacle') {
           reset()
+          restart()
         }
       }}
       name='player'
-      type='fixed'
-      linearDamping={0.5}
-      angularDamping={0.5}
-      colliders='ball'
-      restitution={0.2}
-      friction={1}
+      type='dynamic'
+      colliders='cuboid'
       position={[0, 0, 0]}
     >
       <primitive ref={player} object={character.scene} scale={1.4} />
