@@ -12,20 +12,24 @@ export default function Player() {
   const [smoothedCameraPosition] = useState(() => new Vector3(20, 20, 20))
   const [smoothedCameraTarget] = useState(() => new Vector3())
 
-  character.scene.rotation.y = Math.PI
-  character.scene.position.z = 7.35
+  const reset = () => {
+    body.current.setTranslation({ x: 0, y: 0.1, z: 7.35 })
+    body.current.setLinvel({ x: 0, y: 0, z: 0 })
+    body.current.setAngvel({ x: 0, y: 0, z: 0 })
+  }
 
   useFrame((state, delta) => {
-    const playerPosition = new Vector3(0, 0, player.current.position.z)
+    console.log(body.current.translation())
+    const bodyZPos = new Vector3(0, 0, body.current.translation().z)
 
     const cameraPosition = new Vector3()
-    cameraPosition.copy(playerPosition)
+    cameraPosition.copy(bodyZPos)
     cameraPosition.z += 8
     cameraPosition.y += 10
     cameraPosition.x += 2
 
     const cameraTarget = new Vector3()
-    cameraTarget.copy(playerPosition)
+    cameraTarget.copy(bodyZPos)
     cameraTarget.y += 0.1
     cameraTarget.z += -3
 
@@ -37,26 +41,56 @@ export default function Player() {
   })
 
   const goForward = () => {
-    player.current.position.z -= 1.05
+    const { x, y, z } = body.current.translation()
+
+    body.current.setTranslation({
+      x,
+      y,
+      z: z - 1.05,
+    })
+
     player.current.rotation.y = Math.PI
   }
 
   const goBackWard = () => {
-    player.current.position.z += 1.05
+    const { x, y, z } = body.current.translation()
+
+    body.current.setTranslation({
+      x,
+      y,
+      z: z + 1.05,
+    })
+
     player.current.rotation.y = 0
   }
 
   const goLeftWard = () => {
-    player.current.position.x -= 1.05
+    const { x, y, z } = body.current.translation()
+
+    body.current.setTranslation({
+      x: x - 0.7,
+      y,
+      z,
+    })
+
     player.current.rotation.y = (Math.PI / 2) * 3
   }
 
   const goRightWard = () => {
-    player.current.position.x += 1.05
+    const { x, y, z } = body.current.translation()
+
+    body.current.setTranslation({
+      x: x + 0.7,
+      y,
+      z,
+    })
+
     player.current.rotation.y = Math.PI / 2
   }
 
   useEffect(() => {
+    body.current.setTranslation({ x: 0, y: 0, z: 7.35 })
+
     const unsubscribeForward = subscribeKeys(
       (state) => {
         return state.forward
@@ -112,6 +146,12 @@ export default function Player() {
   return (
     <RigidBody
       ref={body}
+      onCollisionEnter={({ other }) => {
+        if (other.colliderObject.name === 'obstacle') {
+          reset()
+        }
+      }}
+      name='player'
       type='fixed'
       linearDamping={0.5}
       angularDamping={0.5}

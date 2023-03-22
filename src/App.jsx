@@ -1,6 +1,6 @@
-import { OrbitControls, useGLTF } from '@react-three/drei'
 import { Canvas } from '@react-three/fiber'
 import { Physics } from '@react-three/rapier'
+import { Perf } from 'r3f-perf'
 import Floors from './components/Floors'
 import Lights from './components/Lights'
 import Player from './components/Player'
@@ -23,6 +23,7 @@ function App() {
         <Floors />
         <Player />
       </Physics>
+      <Perf />
     </Canvas>
   )
 }
