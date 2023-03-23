@@ -6,6 +6,8 @@ export default function Interface() {
   const time = useRef()
   const restart = useGame((state) => state.restart)
   const phase = useGame((state) => state.phase)
+  const model = useGame((state) => state.model)
+  const changeModel = useGame((state) => state.changeModel)
 
   useEffect(() => {
     const unsubscribeEffect = addEffect(() => {
@@ -56,6 +58,45 @@ export default function Interface() {
           className='absolute bottom-0 right-0 text-white text-3xl bg-gradient-to-r from-cyan-400 to-violet-500 py-2 px-4 rounded text-transparent bg-clip-text font-bold'
         >
           0.00
+        </div>
+      )}
+
+      {phase !== 'playing' && (
+        <div className='absolute left-4 top-4 text-white text-2xl flex gap-1 pointer-events-auto'>
+          <button
+            onClick={() => {
+              changeModel('mimikyu')
+            }}
+            className='rounded w-12 h-12 bg-gradient-to-r from-cyan-200 to-violet-200 p-1 hover:from-cyan-400 hover:to-violet-400'
+          >
+            <img
+              src='https://assets.pokemon.com/assets/cms2/img/pokedex/full/778.png'
+              alt='mimikyu'
+            />
+          </button>
+          <button
+            onClick={() => {
+              changeModel('bellsprout')
+            }}
+            className='rounded w-12 h-12 bg-gradient-to-r from-cyan-200 to-violet-200 p-1 hover:from-cyan-400 hover:to-violet-400'
+          >
+            <img
+              src='https://assets.pokemon.com/assets/cms2/img/pokedex/full/069.png'
+              alt='bellsprout'
+            />
+          </button>
+
+          <button
+            onClick={() => {
+              changeModel('bulbasaur')
+            }}
+            className='rounded w-12 h-12 bg-gradient-to-r from-cyan-200 to-violet-200 p-2 hover:from-cyan-400 hover:to-violet-400'
+          >
+            <img
+              src='https://assets.pokemon.com/assets/cms2/img/pokedex/full/001.png'
+              alt='bulbasaur'
+            />
+          </button>
         </div>
       )}
     </div>

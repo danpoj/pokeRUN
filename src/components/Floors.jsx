@@ -54,8 +54,8 @@ export function Floor({ positionZ = 7.35 }) {
       <mesh
         geometry={boxGeometry}
         material={floor1Material}
-        position={[0, -0.1, positionZ]}
-        scale={[40, 0.1, 1]}
+        position={[0, -0.4, positionZ]}
+        scale={[40, 1, 1]}
         rotation={[0, 0, 0]}
         receiveShadow
         name='floor'
@@ -67,11 +67,10 @@ export function Floor({ positionZ = 7.35 }) {
 export function Obstacle({ positionZ = 7.35 }) {
   const obstacleRef = useRef()
 
-  let reverse = Math.random() < 0.5 ? true : false
-
   const positionX = Math.random() * 20 - 10
   const speed = (Math.random() / 2 + 0.5) / 4
   const xLen = (Math.random() + 1) * 2
+  let reverse = Math.random() < 0.5 ? true : false
 
   useFrame((state, delta) => {
     const { x, y, z } = obstacleRef.current.translation()

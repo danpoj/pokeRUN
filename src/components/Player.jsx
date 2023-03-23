@@ -1,7 +1,7 @@
 import { useGLTF, useKeyboardControls } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { RigidBody } from '@react-three/rapier'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Vector3 } from 'three'
 import useGame from '../stores/useGame'
 
@@ -9,9 +9,11 @@ export default function Player({ seed }) {
   const body = useRef()
   const player = useRef()
   const [subscribeKeys, getKeys] = useKeyboardControls()
-  const character = useGLTF('/players/mimikyu.glb')
   const [smoothedCameraPosition] = useState(() => new Vector3(20, 20, 20))
   const [smoothedCameraTarget] = useState(() => new Vector3())
+  const model = useGame((state) => state.model)
+  const modelScale = useGame((state) => state.modelScale)
+  const character = useGLTF(`/players/${model}.glb`)
 
   const end = useGame((state) => state.end)
   const start = useGame((state) => state.start)
@@ -68,7 +70,11 @@ export default function Player({ seed }) {
       z: z - 1.05,
     })
 
-    player.current.rotation.y = Math.PI
+    if (model === 'mimikyu' || model === 'bulbasaur') {
+      player.current.rotation.y = Math.PI
+    } else if (model === 'bellsprout') {
+      player.current.rotation.y = (Math.PI / 2) * 3
+    }
   }
 
   const goBackWard = () => {
@@ -80,7 +86,11 @@ export default function Player({ seed }) {
       z: z + 1.05,
     })
 
-    player.current.rotation.y = 0
+    if (model === 'mimikyu' || model === 'bulbasaur') {
+      player.current.rotation.y = 0
+    } else if (model === 'bellsprout') {
+      player.current.rotation.y = Math.PI / 2
+    }
   }
 
   const goLeftWard = () => {
@@ -92,7 +102,11 @@ export default function Player({ seed }) {
       z,
     })
 
-    player.current.rotation.y = (Math.PI / 2) * 3
+    if (model === 'mimikyu' || model === 'bulbasaur') {
+      player.current.rotation.y = (Math.PI / 2) * 3
+    } else if (model === 'bellsprout') {
+      player.current.rotation.y = Math.PI * 2
+    }
   }
 
   const goRightWard = () => {
@@ -104,12 +118,16 @@ export default function Player({ seed }) {
       z,
     })
 
-    player.current.rotation.y = Math.PI / 2
+    if (model === 'mimikyu' || model === 'bulbasaur') {
+      player.current.rotation.y = Math.PI / 2
+    } else if (model === 'bellsprout') {
+      player.current.rotation.y = Math.PI
+    }
   }
 
   useEffect(() => {
     body.current.setTranslation({ x: 0, y: 0, z: 7.35 })
-    console.log(phase)
+    if (model === 'bellsprout') player.current.rotation.y = Math.PI / 2
 
     const unsubscribeForward = subscribeKeys(
       (state) => {
@@ -171,7 +189,7 @@ export default function Player({ seed }) {
       unsubscribeRightWard()
       unsubscribeAny()
     }
-  }, [phase])
+  }, [phase, model])
 
   return (
     <RigidBody
@@ -187,7 +205,7 @@ export default function Player({ seed }) {
       colliders='cuboid'
       position={[0, 0, 0]}
     >
-      <primitive ref={player} object={character.scene} scale={1.4} />
+      <primitive ref={player} object={character.scene} scale={modelScale} />
     </RigidBody>
   )
 }

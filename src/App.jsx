@@ -1,6 +1,8 @@
 import { Canvas } from '@react-three/fiber'
 import { Physics } from '@react-three/rapier'
 import { Perf } from 'r3f-perf'
+import { FinishLine1, FinishLine2 } from './components/FinishLine'
+import FloatingText from './components/FloatingText'
 import Floors from './components/Floors'
 import Lights from './components/Lights'
 import Player from './components/Player'
@@ -27,6 +29,9 @@ function App() {
         <Floors count={53} seed={seed} />
         <Player seed={seed} />
       </Physics>
+      <FloatingText />
+      {/* <FinishLine1 scale={10} position={[0, 3, 10]} /> */}
+      <FinishLine2 position={[0, 1, -47]} />
       {/* <Perf /> */}
     </Canvas>
   )

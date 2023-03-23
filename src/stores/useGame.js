@@ -1,9 +1,23 @@
 import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 
+const modelInfo = {
+  mimikyu: {
+    scale: 1.6,
+  },
+  bellsprout: {
+    scale: 0.01,
+  },
+  bulbasaur: {
+    scale: 80,
+  },
+}
+
 export default create(
   subscribeWithSelector((set) => {
     return {
+      model: 'mimikyu',
+      modelScale: modelInfo.mimikyu.scale,
       seed: 0,
       phase: 'ready',
       startTime: 0,
@@ -17,6 +31,7 @@ export default create(
           return {}
         })
       },
+
       restart: () => {
         set((state) => {
           if (state.phase === 'playing' || state.phase === 'ended') {
@@ -26,6 +41,7 @@ export default create(
           return {}
         })
       },
+
       end: () => {
         set((state) => {
           if (state.phase === 'playing') {
@@ -33,6 +49,13 @@ export default create(
           }
 
           return {}
+        })
+      },
+
+      changeModel: (modelName) => {
+        set((state) => {
+          if (state.model === modelName) return {}
+          return { model: modelName, modelScale: modelInfo[modelName].scale }
         })
       },
     }
